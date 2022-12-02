@@ -1,4 +1,6 @@
 import java.lang.constant.Constable;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Match {
     enum Action {
@@ -15,13 +17,21 @@ public class Match {
 
     private Action actionOpponent;
     private Action actionMyself;
-    private Character actionMyselfPartTwo;
-    private int points;
+    private Map<Result, Integer> resultPointMapper = new HashMap<>() {{
+        put(Result.WON, 6);
+        put(Result.DRAW, 3);
+        put(Result.LOST, 0);
+    }};
 
-    public Match(Character actionOpponent, Character actionMyself) {
+    private Map<Action, Integer> actionPointMapper = new HashMap<>() {{
+        put(Action.PAPER, 2);
+        put(Action.ROCK, 1);
+        put(Action.SCISSOR, 3);
+    }};
+
+    public Match(Character actionOpponent, Character actionMyself, boolean isPartTwo) {
         this.actionOpponent = this.convertAction(actionOpponent);
-        this.actionMyself = this.convertAction(actionMyself);
-        this.actionMyselfPartTwo = actionMyself;
+        this.actionMyself = isPartTwo ? this.convertAction(actionMyself, this.actionOpponent) : this.convertAction(actionMyself);
     }
 
 
@@ -35,38 +45,53 @@ public class Match {
 
     }
 
-    public Integer getPoints () {
-        Integer points = 0;
-         switch (this.actionMyself) {
-            case ROCK -> points += 1;
-            case PAPER -> points += 2;
-            case SCISSOR -> points += 3;
-        };
-        switch (this.evaluateMatch()) {
-            case DRAW -> points += 3;
-            case WON -> points += 6;
-            case LOST -> points += 0;
-        };
-        return points;
+    private Action convertAction(Character action, Action enemyAction) {
+        Action result = null;
+        switch (enemyAction) {
+            case ROCK -> {
+                if (action.equals('X')) {
+                    result = Action.SCISSOR;
+                } else if (action.equals('Y')) {
+                    result = Action.ROCK;
+                } else {
+                    result = Action.PAPER;
+                }
+            }
+            case PAPER -> {
+                if (action.equals('X')) {
+                    result = Action.ROCK;
+                } else if (action.equals('Y')) {
+                    result = Action.PAPER;
+                } else {
+                    result = Action.SCISSOR;
+                }
+            }
+            case SCISSOR -> {
+                if (action.equals('X')) {
+                    result = Action.PAPER;
+                } else if (action.equals('Y')) {
+                    result = Action.SCISSOR;
+                } else {
+                    result = Action.ROCK;
+                }
+            }
+        }
+        ;
+        return result;
     }
-    
-    public Integer getPointsTwo() 
-    {
+
+
+    public Integer getPoints() {
         Integer points = 0;
-        switch (this.actionMyselfPartTwo) {
-            case 'X' -> points += 0;
-            case 'Y' -> points += 3;
-            case 'Z' -> points += 6;
-        };
-        switch (this.getAction()) {
-            case ROCK -> points += 1;
-            case PAPER -> points += 2;
-            case SCISSOR -> points += 3;
-        };
+
+        points += this.actionPointMapper.get(this.actionMyself);
+        points += this.resultPointMapper.get(this.evaluateMatch());
+
         return points;
     }
 
-    private Result evaluateMatch(){
+
+    private Result evaluateMatch() {
         Result result = null;
         switch (this.actionOpponent) {
             case ROCK -> {
@@ -78,7 +103,7 @@ public class Match {
                     result = Result.LOST;
                 }
             }
-            case PAPER ->{
+            case PAPER -> {
                 if (this.actionMyself.equals(Action.ROCK)) {
                     result = Result.LOST;
                 } else if (this.actionMyself.equals(Action.PAPER)) {
@@ -96,40 +121,10 @@ public class Match {
                     result = Result.DRAW;
                 }
             }
-        };
+        }
+        ;
         return result;
     }
-    private Action getAction() {
-        Action result = null;
-        switch (this.actionOpponent) {
-            case ROCK -> {
-                if (this.actionMyselfPartTwo.equals('X')) {
-                    result = Action.SCISSOR;
-                } else if  (this.actionMyselfPartTwo.equals('Y')) {
-                    result =Action.ROCK;
-                } else {
-                    result = Action.PAPER;
-                }
-            }
-            case PAPER ->{
-                if  (this.actionMyselfPartTwo.equals('X')) {
-                    result = Action.ROCK;
-                } else if  (this.actionMyselfPartTwo.equals('Y')) {
-                    result = Action.PAPER;
-                } else {
-                    result = Action.SCISSOR;
-                }
-            }
-            case SCISSOR -> {
-                if  (this.actionMyselfPartTwo.equals('X')) {
-                    result =Action.PAPER;
-                } else if  (this.actionMyselfPartTwo.equals('Y')) {
-                    result =Action.SCISSOR;
-                } else {
-                    result = Action.ROCK;
-                }
-            }
-        };
-        return result;
-    }
+
+
 }
