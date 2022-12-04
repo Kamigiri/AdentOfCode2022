@@ -1,5 +1,6 @@
 fun main(args: Array<String>) {
-   val pairs = createPairs("input.txt");
+    val start = System.currentTimeMillis();
+    val pairs = createPairs("input.txt");
     var numOfFullyOverlappedPairs = 0
     var numOfOverlappedPairs = 0
     pairs.forEach { pair->
@@ -9,19 +10,18 @@ fun main(args: Array<String>) {
                 numOfFullyOverlappedPairs++
             }
         }
-
     }
     println("$numOfFullyOverlappedPairs,$numOfOverlappedPairs")
+    println("Memory: ${Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()} Bytes")
+    println("Time: ${System.currentTimeMillis() - start}ms")
+
 }
 
-fun createPairs(file: String): ArrayList<Pair> {
-    val inputString = object {}.javaClass.getResourceAsStream(file)?.bufferedReader()?.readLines()
-    var pairs: ArrayList<Pair> = arrayListOf<Pair>();
-    if (inputString != null) {
-        inputString.forEach { pair ->
-            val newPair = Pair(pair)
-            pairs.add(newPair)
-        }
+fun createPairs(file: String): ArrayList<CleaningGroup> {
+    val pairs: ArrayList<CleaningGroup> = arrayListOf<CleaningGroup>();
+    object {}.javaClass.getResourceAsStream(file)?.bufferedReader()?.readLines()?.forEach { pair ->
+        val newPair = CleaningGroup(pair)
+        pairs.add(newPair)
     }
     return pairs
 }
